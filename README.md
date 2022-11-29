@@ -10,11 +10,34 @@ https://github.com/yieldprotocol/mentorship2022/issues/4
 
 ## Functions
 
+`constructor()`
+
+- set the exchange rate
+- instantiates underlying ERC-20 token contract address
+
 `deposit()`
+
+- receives underlying ERC-20 token from user
+- calculates corresponding number of wrapper tokens using the exchange rate
+- mints wrapper tokens to the user
+- emits a Wrap event
 
 `withdraw()`
 
+- receives wrapper tokens from user
+- calculates corresponding number of underlying tokens
+- transfers underlying tokens to user
+- emits an Unwrap event
+
+`convertToShares()`
+
+- converts an underlying token (asset) to its equivalent amount in shares
+
+`convertToAssets()`
+
+- converts shares to its equivalent amount in underlying tokens (asset)
+
 ## References
 
-https://github.com/yieldprotocol/yield-utils-v2/tree/main/contracts/math
 https://eips.ethereum.org/EIPS/eip-4626
+https://github.com/yieldprotocol/yield-utils-v2/tree/main/contracts/math
