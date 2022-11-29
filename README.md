@@ -20,22 +20,24 @@ https://github.com/yieldprotocol/mentorship2022/issues/4
 - receives underlying ERC-20 token from user
 - calculates corresponding number of wrapper tokens using the exchange rate
 - mints wrapper tokens to the user
-- emits a Wrap event
+- emits a Deposit event
 
 `withdraw()`
 
 - receives wrapper tokens from user
 - calculates corresponding number of underlying tokens
 - transfers underlying tokens to user
-- emits an Unwrap event
+- emits a Withdraw event
 
 `convertToShares()`
 
 - converts an underlying token (asset) to its equivalent amount in shares
+- returns uint256
 
 `convertToAssets()`
 
 - converts shares to its equivalent amount in underlying tokens (asset)
+- returns uint256
 
 ## References
 
