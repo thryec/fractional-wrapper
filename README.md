@@ -18,14 +18,14 @@ https://github.com/yieldprotocol/mentorship2022/issues/4
 `deposit()`
 
 - receives underlying ERC-20 token from user
-- calculates corresponding number of wrapper tokens using the exchange rate
+- calculates corresponding number of wrapper tokens using the exchange rate, and rebase to 1e27
 - mints wrapper tokens to the user
 - emits a Deposit event
 
 `withdraw()`
 
 - receives wrapper tokens from user
-- calculates corresponding number of underlying tokens
+- calculates corresponding number of underlying tokens, and rebase to 1e18
 - transfers underlying tokens to user
 - emits a Withdraw event
 

@@ -5,11 +5,30 @@ import "forge-std/Test.sol";
 import "../src/FractionalWrapper.sol";
 import "../src/Token.sol";
 
-contract FractionalWrapperTest is Test {
+abstract contract StateZero is Test {
     FractionalWrapper internal wrapper;
     Token internal underlying;
 
-    address alice;
+    address alice = address(0x1);
+    uint256 internal constant exchangeRate = 1e18;
+    uint256 depositAmount = 1;
+
+    event Deposit(
+        address indexed caller,
+        address indexed owner,
+        uint256 assets,
+        uint256 shares
+    );
+    event Withdraw(
+        address indexed caller,
+        address indexed receiver,
+        address indexed owner,
+        uint256 assets,
+        uint256 shares
+    );
+
+    error InsufficientBalance();
+    error TransferFailed();
 
     function setUp() public virtual {
         underlying = new Token();
@@ -19,5 +38,38 @@ contract FractionalWrapperTest is Test {
             18,
             address(underlying)
         );
+
+        vm.label(alice, "alice");
+        underlying.mint(alice, 100 ether);
     }
 }
+
+contract StateZeroTest is StateZero {
+    function testDeposit() public {
+        vm.prank(alice);
+        uint256 shares = wrapper.deposit(depositAmount * 1e18);
+        assertEq(shares, wrapper.balanceOf(alice));
+    }
+
+    function testDepositEmitsEvent() public {
+        uint256 shares = (depositAmount * exchangeRate) / 1e27;
+        vm.expectEmit(true, true, true, true);
+        emit Deposit(alice, alice, depositAmount, shares);
+        vm.prank(alice);
+        wrapper.deposit(depositAmount * 1e18);
+    }
+
+    function testWithdrawReverts() public {
+        vm.expectRevert(InsufficientBalance.selector);
+        vm.prank(alice);
+        wrapper.deposit(depositAmount * 1e18);
+    }
+}
+
+abstract contract StateOne is StateZero {
+    function setUp() public virtual override {
+        super.setUp();
+    }
+}
+
+contract StateOneTest is StateOne {}
