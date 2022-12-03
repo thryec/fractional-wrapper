@@ -10,8 +10,8 @@ abstract contract StateZero is Test {
     Token internal underlying;
 
     address alice = address(0x1);
-    uint256 internal constant exchangeRate = 1e18;
-    uint256 depositAmount = 1;
+    uint256 internal constant exchangeRate = 0.5 * 1e27;
+    uint256 depositAmount = 1 * 1e18;
 
     event Deposit(
         address indexed caller,
@@ -47,7 +47,7 @@ abstract contract StateZero is Test {
 contract StateZeroTest is StateZero {
     function testDeposit() public {
         vm.prank(alice);
-        uint256 shares = wrapper.deposit(depositAmount * 1e18);
+        uint256 shares = wrapper.deposit(depositAmount);
         assertEq(shares, wrapper.balanceOf(alice));
     }
 
@@ -56,13 +56,14 @@ contract StateZeroTest is StateZero {
         vm.expectEmit(true, true, true, true);
         emit Deposit(alice, alice, depositAmount, shares);
         vm.prank(alice);
-        wrapper.deposit(depositAmount * 1e18);
+        wrapper.deposit(depositAmount);
     }
 
     function testWithdrawReverts() public {
         vm.expectRevert(InsufficientBalance.selector);
+        uint256 shares = (depositAmount * exchangeRate) / 1e27;
         vm.prank(alice);
-        wrapper.deposit(depositAmount * 1e18);
+        wrapper.withdraw(shares);
     }
 }
 

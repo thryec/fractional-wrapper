@@ -13,7 +13,7 @@ contract FractionalWrapper is ERC20Permit {
     address internal immutable _underlyingAddress;
     uint256 internal _maxDeposit;
 
-    uint256 internal constant exchangeRate = 1e18;
+    uint256 internal constant exchangeRate = 0.5 * 1e27;
 
     event Deposit(
         address indexed caller,
