@@ -68,7 +68,7 @@ contract FractionalWrapper is ERC20Permit {
             }
         }
         uint256 _assets = convertToAssets(shares);
-        console2.log("assets", _assets);
+        console2.log("converted assets", _assets);
 
         _burn(msg.sender, shares);
         bool success = underlying.transferFrom(

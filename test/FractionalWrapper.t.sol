@@ -41,7 +41,7 @@ abstract contract StateZero is Test {
         );
 
         vm.label(alice, "alice");
-        underlying.mint(alice, 100 ether);
+        underlying.mint(alice, 1 ether);
         vm.prank(alice);
         underlying.approve(address(wrapper), depositAmount);
     }
@@ -87,10 +87,21 @@ contract StateOneTest is StateOne {
         assertEq(0, wrapper.balanceOf(alice));
         console2.log("original amount", depositAmount);
         console2.log("received amount", underlying.balanceOf(alice));
-        // assertEq(depositAmount, underlying.balanceOf(alice));
+        assertEq(depositAmount, underlying.balanceOf(alice));
     }
 
-    // function testWithdrawEmitsEvent() public {}
+    function testWithdrawEmitsEvent() public {
+        uint256 shares = (depositAmount * exchangeRate) / 1e27;
+        vm.expectEmit(true, true, true, true);
+        emit Withdraw(alice, alice, alice, depositAmount, shares);
+        vm.prank(alice);
+        wrapper.withdraw(shares);
+    }
 
-    // function testWithdrawRevertsIfSharesMoreThanBalance() public {}
+    function testWithdrawRevertsIfSharesMoreThanBalance() public {
+        vm.expectRevert(InsufficientBalance.selector);
+        uint256 shares = (extraAmount * exchangeRate) / 1e27;
+        vm.prank(alice);
+        wrapper.withdraw(shares);
+    }
 }
