@@ -44,8 +44,16 @@ contract FractionalWrapper is ERC20Permit {
 
     function deposit(uint256 assets) public returns (uint256 shares) {
         uint256 _shares = convertToShares(assets);
-        bool success = _mint(msg.sender, _shares);
-        if (!success) {
+        bool mintSuccess = _mint(msg.sender, _shares);
+        if (!mintSuccess) {
+            revert TransferFailed();
+        }
+        bool receiveSuccess = underlying.transferFrom(
+            msg.sender,
+            address(this),
+            assets
+        );
+        if (!receiveSuccess) {
             revert TransferFailed();
         }
         emit Deposit(msg.sender, msg.sender, assets, _shares);
@@ -53,12 +61,15 @@ contract FractionalWrapper is ERC20Permit {
     }
 
     function withdraw(uint256 shares) public returns (uint256 assets) {
+        console2.log("shares to withdraw", shares);
         if (this.balanceOf(msg.sender) < shares) {
             {
                 revert InsufficientBalance();
             }
         }
         uint256 _assets = convertToAssets(shares);
+        console2.log("assets", _assets);
+
         _burn(msg.sender, shares);
         bool success = underlying.transferFrom(
             address(this),
@@ -89,7 +100,7 @@ contract FractionalWrapper is ERC20Permit {
         virtual
         returns (uint256 assets)
     {
-        return _shares.mulDivDown(1e27, exchangeRate);
+        return (_shares * 1e27) / exchangeRate;
     }
 
     function asset() public view returns (address _underlying) {

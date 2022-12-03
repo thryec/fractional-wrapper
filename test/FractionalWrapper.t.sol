@@ -12,6 +12,7 @@ abstract contract StateZero is Test {
     address alice = address(0x1);
     uint256 internal constant exchangeRate = 0.5 * 1e27;
     uint256 depositAmount = 1 * 1e18;
+    uint256 extraAmount = 2 * 1e18;
 
     event Deposit(
         address indexed caller,
@@ -41,6 +42,8 @@ abstract contract StateZero is Test {
 
         vm.label(alice, "alice");
         underlying.mint(alice, 100 ether);
+        vm.prank(alice);
+        underlying.approve(address(wrapper), depositAmount);
     }
 }
 
@@ -49,6 +52,7 @@ contract StateZeroTest is StateZero {
         vm.prank(alice);
         uint256 shares = wrapper.deposit(depositAmount);
         assertEq(shares, wrapper.balanceOf(alice));
+        assertEq(underlying.balanceOf(address(wrapper)), depositAmount);
     }
 
     function testDepositEmitsEvent() public {
@@ -70,7 +74,23 @@ contract StateZeroTest is StateZero {
 abstract contract StateOne is StateZero {
     function setUp() public virtual override {
         super.setUp();
+        vm.prank(alice);
+        wrapper.deposit(depositAmount);
     }
 }
 
-contract StateOneTest is StateOne {}
+contract StateOneTest is StateOne {
+    function testWithdraw() public {
+        uint256 shares = (depositAmount * exchangeRate) / 1e27;
+        vm.prank(alice);
+        wrapper.withdraw(shares);
+        assertEq(0, wrapper.balanceOf(alice));
+        console2.log("original amount", depositAmount);
+        console2.log("received amount", underlying.balanceOf(alice));
+        // assertEq(depositAmount, underlying.balanceOf(alice));
+    }
+
+    // function testWithdrawEmitsEvent() public {}
+
+    // function testWithdrawRevertsIfSharesMoreThanBalance() public {}
+}
